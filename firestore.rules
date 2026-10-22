@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation Blueprint for Sector
+    function isValidSector(data) {
+      return data.keys().hasAll(['id', 'name', 'description', 'icon', 'questions'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 64
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 150
+        && data.description is string && data.description.size() <= 500
+        && data.icon is string && data.icon.size() <= 64
+        && data.questions is list;
+    }
+
+    // Validation Blueprint for Audit
+    function isValidAudit(data) {
+      return data.keys().hasAll(['id', 'sectorId', 'sectorName', 'evaluator', 'date', 'status', 'score', 'responses'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 64
+        && data.sectorId is string && data.sectorId.size() > 0 && data.sectorId.size() <= 64
+        && data.sectorName is string && data.sectorName.size() > 0 && data.sectorName.size() <= 150
+        && data.evaluator is string && data.evaluator.size() > 0 && data.evaluator.size() <= 150
+        && data.date is string && data.date.size() > 0 && data.date.size() <= 30
+        && (data.status == 'em_andamento' || data.status == 'finalizado')
+        && data.score is number && data.score >= 0 && data.score <= 100
+        && data.responses is map
+        && (!('criticalNotes' in data) || (data.criticalNotes is string && data.criticalNotes.size() <= 2000));
+    }
+
+    // Sectors collection
+    match /sectors/{sectorId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidId(sectorId) && incoming().id == sectorId && isValidSector(incoming());
+      allow update: if isSignedIn() && isValidId(sectorId) && incoming().id == existing().id && isValidSector(incoming());
+      allow delete: if isSignedIn() && isValidId(sectorId);
+    }
+
+    // Audits collection
+    match /audits/{auditId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidId(auditId) && incoming().id == auditId && isValidAudit(incoming());
+      allow update: if isSignedIn() && isValidId(auditId) && incoming().id == existing().id && isValidAudit(incoming());
+      allow delete: if isSignedIn() && isValidId(auditId);
+    }
+
+    // Connection testing
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

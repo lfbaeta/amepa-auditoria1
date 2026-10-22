@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "Sector": {
+      "title": "Sector",
+      "description": "Setores e suas perguntas de auditoria",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador do setor",
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome descritivo do setor",
+          "maxLength": 150
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição do setor e escopo",
+          "maxLength": 500
+        },
+        "icon": {
+          "type": "string",
+          "description": "Nome do ícone Lucide",
+          "maxLength": 64
+        },
+        "questions": {
+          "type": "array",
+          "description": "Lista de perguntas do questionário"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Data ISO da última atualização",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "name", "description", "icon", "questions"]
+    },
+    "Audit": {
+      "title": "Audit",
+      "description": "Registro de auditoria de conformidade",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador único da auditoria",
+          "maxLength": 64
+        },
+        "sectorId": {
+          "type": "string",
+          "description": "ID do setor auditado",
+          "maxLength": 64
+        },
+        "sectorName": {
+          "type": "string",
+          "description": "Nome do setor no momento da auditoria",
+          "maxLength": 150
+        },
+        "evaluator": {
+          "type": "string",
+          "description": "Nome do auditor / avaliador",
+          "maxLength": 150
+        },
+        "date": {
+          "type": "string",
+          "description": "Data da auditoria (YYYY-MM-DD)",
+          "maxLength": 30
+        },
+        "status": {
+          "type": "string",
+          "description": "Status da auditoria",
+          "enum": ["em_andamento", "finalizado"]
+        },
+        "score": {
+          "type": "number",
+          "description": "Porcentagem de conformidade (0 a 100)"
+        },
+        "responses": {
+          "type": "object",
+          "description": "Mapa com as respostas dos itens avaliados"
+        },
+        "criticalNotes": {
+          "type": "string",
+          "description": "Observações críticas do auditor",
+          "maxLength": 2000
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Data de criação ISO",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Data de atualização ISO",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "sectorId", "sectorName", "evaluator", "date", "status", "score", "responses"]
+    }
+  },
+  "firestore": {
+    "/sectors/{sectorId}": {
+      "schema": "Sector",
+      "description": "Coleção de setores e seus questionários"
+    },
+    "/audits/{auditId}": {
+      "schema": "Audit",
+      "description": "Coleção de registros de auditorias"
+    }
+  }
+}

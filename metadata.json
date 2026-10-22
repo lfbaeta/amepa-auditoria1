@@ -1,0 +1,6 @@
+{
+  "name": "Gestor de Auditorias",
+  "description": "Sistema móvel focado no registro de auditorias internas de conformidade por setor com relatórios em PDF, exportação de dados e funcionamento offline-first.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
